@@ -252,35 +252,76 @@ int main() {
           	  car_s = end_path_s;
           	}
           	
-          	bool too_close = false;
+          	double too_close_ahead_dist = 30;
+          	double too_close_behind_dist = 10;
+          	
+            bool car_ahead_too_close_in_my_lane = false;
+            bool car_ahead_too_close_in_left_lane = false;
+            bool car_ahead_too_close_in_right_lane = false;
+            bool car_behind_too_close_in_left_lane = false;
+            bool car_behind_too_close_in_right_lane = false;
           	
           	//find ref_y to use
           	for (int i=0; i<sensor_fusion.size(); i++)
           	{
           	  //car is in my lane
-          	  float d = sensor_fusion[i][6];
-          	  if (d < (2 + 4*lane) && d > (2 + 4*lane - 2))
-          	  {
-          	    double vx = sensor_fusion[i][3];
-          	    double vy = sensor_fusion[i][4];
-          	    double check_speed = sqrt(vx*vx + vy*vy);
-          	    double check_car_s = sensor_fusion[i][5];
-          	    
-          	    // if using previous points can project s value out
-          	    check_car_s += (double)prev_size * 0.02 * check_speed;
-          	    
-          	    //check s values greater than mine and s gap
-          	    if((check_car_s > car_s) && ( check_car_s - car_s < 30))
-          	    {
-          	      too_close = true;
-          	    }
-          	  }
-          	  
+              double vx = sensor_fusion[i][3];
+              double vy = sensor_fusion[i][4];
+              double check_speed = sqrt(vx*vx + vy*vy);
+              double check_car_s = sensor_fusion[i][5];
+              float d = sensor_fusion[i][6];
+              int check_car_lane = floor(d/4.0);
+              
+              // if using previous points can project s value out
+              check_car_s += (double)prev_size * 0.02 * check_speed;  
+              
+              if (check_car_s - car_s > 0) // other car is ahead
+              {
+                if (check_car_s - car_s < too_close_ahead_dist) // other car is ahead and too close
+                {
+                  if (check_car_lane == lane) // in my lane
+                  {
+                    car_ahead_too_close_in_my_lane = true;
+                  }
+                  else if (check_car_lane == lane - 1) // in left lane
+                  {
+                    car_ahead_too_close_in_left_lane = true;                   
+                  }
+                  else if (check_car_lane == lane + 1) // in right lane
+                  {
+                    car_ahead_too_close_in_right_lane = true;                   
+                  }
+                }
+              }
+              else if (check_car_s - car_s < too_close_ahead_dist) // other car is behind and too close
+              {
+                if (check_car_lane == lane - 1) // in left lane
+                {
+                  car_behind_too_close_in_left_lane = true;                   
+                }
+                else if (check_car_lane == lane + 1) // in right lane
+                {
+                  car_behind_too_close_in_right_lane = true;                   
+                }
+              }
+              
           	}
           	
-          	if(too_close)
+          	
+          	if(car_ahead_too_close_in_my_lane)
           	{
-          	  ref_vel -= 0.224;
+          	  if ((lane>0)&&(not car_ahead_too_close_in_left_lane)&&(not car_behind_too_close_in_left_lane))
+          	  {
+          	    lane--;
+          	  }
+          	  else if ((lane<2)&&(not car_ahead_too_close_in_right_lane)&&(not car_behind_too_close_in_right_lane))
+          	  {
+          	    lane++;
+          	  }
+          	  else
+          	  {
+          	    ref_vel -= 0.224;
+          	  }
           	}
           	else if(ref_vel < 49.5)
           	{
