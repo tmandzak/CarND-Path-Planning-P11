@@ -1,5 +1,0 @@
-First I made the car stay in its lane by settitg constant d coordinate (line 252).
-To solve jerk issues on edges of the path I applied splines (http://kluge.in-chemnitz.de/opensource/spline/) to smooth out the path
-(lines ).
-Next problems to solve are breaking acceleration limit at start and
-hitting cars in front.
