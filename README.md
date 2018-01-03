@@ -1,7 +1,12 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
+
+### The code model for generating paths
+* The path is being built based on the spline going through two last points of the previous path (**lines 356 - 386**) so that the path is smooth and three additional points with constat ```d = 2 + 4*lane``` making the car staying in the middle of it's lane (**lines 389 - 399**).
+
+
    
-### Simulator.
+### Simulator
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases).
 
 ### Goals
