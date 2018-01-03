@@ -3,7 +3,11 @@ Self-Driving Car Engineer Nanodegree Program
 
 ### The code model for generating paths
 * The path is being built based on the spline going through two last points of the previous path (**lines 356 - 386**) so that the path is smooth and three additional points with constat ```d = 2 + 4*lane``` making the car staying in the middle of it's lane (**lines 389 - 399**).
-
+* Actual path points are constracted from the first 30 meters of the spline (**lines 414 - 458**). Distance between points is set to ```0.02 * ref_vel/2.24``` (**line 442**) in order to keep the desired speed.
+* In order to avoid jerk issues speed of the car is updated gradually depending on the traffic (**lines 208, 325, 333**).
+* To avoid collisions the car slows down when approaching the car in front closer then ```too_close_ahead_dist``` meters and waits for the gap to the left or to the right for ```too_close_behind_dist``` meters behind and ```too_close_ahead_dist``` meters ahead before changing lanes (**lines 310 - 327**). Later on the car try to accelerate as soon as possible (**lines 331 - 334**).
+* The whole lanes changing logic is implemented in **lines 310 - 342**, needed flags are initialized in lines
+(**278 - 306**). The car tries to change the lane to the middle one as soon as possible in order to have more choices in future (**lines 337 - 341**).
 
    
 ### Simulator
